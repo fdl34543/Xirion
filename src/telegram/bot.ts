@@ -141,28 +141,34 @@ async function handleStartCommand(baseUrl: string, chatId: number) {
     chat_id: chatId,
     text: XIRION_DESCRIPTION,
     reply_markup: {
-      inline_keyboard: [
+        inline_keyboard: [
         [
-          {
+            {
             text: "Open CLI Docs",
             url: "https://github.com/fdl34543/Xirion",
-          },
-          {
+            },
+            {
             text: "View Project",
             url: "https://colosseum.com/agent-hackathon",
-          },
+            },
         ],
         [
-          {
+            {
             text: "Agent Menu",
             callback_data: "agent_menu",
-          },
-          {
+            },
+            {
             text: "Wallet",
             callback_data: "wallet_menu",
-          },
+            },
         ],
-      ],
+        [
+            {
+            text: "Available Commands",
+            callback_data: "show_commands",
+            },
+        ],
+        ],
     },
   });
 }
@@ -182,6 +188,24 @@ async function handleCallbackQuery(
   await axios.post(`${baseUrl}/answerCallbackQuery`, {
     callback_query_id: query.id,
   });
+
+  if (data === "show_commands") {
+    await axios.post(`${baseUrl}/sendMessage`, {
+        chat_id: chatId,
+        text: `
+    Available Commands
+
+/start        Initialize bot and show main menu
+/status       Show current agent status
+/scan         Trigger on-demand market scan
+/decisions    View recent agent decisions
+/alerts on    Enable Telegram alerts
+/alerts off   Disable Telegram alerts
+/wallet       Open wallet menu (balances, stats, funding)
+    `.trim(),
+    });
+    return;
+  }
 
   if (data === "agent_menu") {
     await showAgentMenu(baseUrl, chatId);
