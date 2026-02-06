@@ -192,6 +192,9 @@ git clone https://github.com/your-org/xirion.git
 cd xirion
 npm install
 cp .env.example .env
+
+npm run build
+npm install -g .
 ```
 
 ### 2. Configure Environment
@@ -205,11 +208,6 @@ SOLANA_PRIVATE_KEY=...
 XIRION_RISK_PROFILE=medium      # low | medium | high
 XIRION_EXECUTION=true           # false = dry-run
 XIRION_MAX_EXPOSURE=0.15        # 15% per strategy
-
-# Telegram
-TELEGRAM_BOT_TOKEN=...
-TELEGRAM_CHAT_ID=...
-
 ```
 
 ---
@@ -219,18 +217,12 @@ TELEGRAM_CHAT_ID=...
 Xirion is primarily controlled via CLI.
 
 ```bash
-npm run xirion start        # Start agent
-npm run xirion status       # Agent status
-npm run xirion scan         # Manual market scan
-npm run xirion decisions    # Show recent decisions
-npm run xirion config       # View configuration
+npx xirion
+or
+xirion
 ```
 
 ### Register Telegram Bot via CLI
-
-```bash
-npm run xirion telegram register
-```
 
 This will:
 
@@ -247,17 +239,18 @@ Xirion supports **Telegram as a control & alert interface**.
 ### Supported Commands
 
 ```
-/status        → Agent status
-/scan          → Trigger scan
-/decisions     → Recent agent decisions
-/alerts on     → Enable alerts
-/alerts off    → Disable alerts
+/start          → Initialize bot, show Xirion overview & main menu
+/status         → Show current agent status
+/scan           → Trigger on-demand market scan
+/decisions      → View recent agent decisions & reasoning
+/alerts on      → Enable Telegram alerts
+/alerts off     → Disable Telegram alerts
+/wallet         → Open wallet menu (balances, stats, funding)
 ```
 
 Telegram bot can be:
 
 * Registered via CLI
-* Or configured directly in `.env`
 
 ---
 
