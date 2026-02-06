@@ -1,6 +1,7 @@
 import inquirer from "inquirer";
 import { adminMenu } from "./admin.js";
 import { walletMenu } from "../x402/wallet.js";
+import { telegramMenu } from "../telegram/menu.js";
 
 export async function mainMenu(): Promise<void> {
   const answer = await inquirer.prompt<{
@@ -53,7 +54,7 @@ export async function mainMenu(): Promise<void> {
       break;
 
     case "telegram":
-      console.log("Telegram bot setup is not implemented yet.");
+      await telegramMenu();
       break;
 
     case "admin":
