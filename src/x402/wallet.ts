@@ -18,6 +18,27 @@ type WalletConfig = {
 };
 
 /* =========================
+   Helpers
+========================= */
+
+function getBalanceLabel(b: any): string {
+  if (typeof b.symbol === "string" && b.symbol.length > 0) {
+    return b.symbol;
+  }
+
+  if (typeof b.assetSymbol === "string" && b.assetSymbol.length > 0) {
+    return b.assetSymbol;
+  }
+
+  if (typeof b.name === "string" && b.name.length > 0) {
+    return b.name;
+  }
+
+  return "UNKNOWN";
+}
+
+
+/* =========================
    Storage Helpers
 ========================= */
 
@@ -83,7 +104,15 @@ function printBalances(data: any) {
 
     const balances = data.evm.balances || [];
     balances.slice(0, 2).forEach((b: any) => {
-      console.log(`- ${b.symbol.padEnd(9)}: ${b.formatted}`);
+      const label = getBalanceLabel(b);
+      const value =
+        typeof b.formatted === "string"
+          ? b.formatted
+          : typeof b.amount === "string"
+          ? b.amount
+          : "0";
+
+      console.log(`- ${label.padEnd(9)}: ${value}`);
     });
 
     if (balances.length > 2) {
@@ -97,7 +126,15 @@ function printBalances(data: any) {
 
     const balances = data.solana.balances || [];
     balances.slice(0, 2).forEach((b: any) => {
-      console.log(`- ${b.symbol.padEnd(9)}: ${b.formatted}`);
+      const label = getBalanceLabel(b);
+      const value =
+        typeof b.formatted === "string"
+          ? b.formatted
+          : typeof b.amount === "string"
+          ? b.amount
+          : "0";
+
+      console.log(`- ${label.padEnd(9)}: ${value}`);
     });
 
     if (balances.length > 2) {

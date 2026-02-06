@@ -24,6 +24,33 @@ const BASE_URL = "https://agentwallet.mcpay.tech/api";
    Helpers
 ========================= */
 
+function normalizeBalance(b: any): { label: string; value: string } | null {
+  const label =
+    typeof b.symbol === "string"
+      ? b.symbol
+      : typeof b.assetSymbol === "string"
+      ? b.assetSymbol
+      : typeof b.name === "string"
+      ? b.name
+      : null;
+
+  if (!label) return null;
+
+  const value =
+    typeof b.formatted === "string"
+      ? b.formatted
+      : typeof b.amount === "string"
+      ? b.amount
+      : typeof b.balance === "string"
+      ? b.balance
+      : null;
+
+  if (!value) return null;
+
+  return { label, value };
+}
+
+
 function loadWallet(): WalletConfig | null {
   if (!fs.existsSync(WALLET_FILE)) return null;
   return JSON.parse(fs.readFileSync(WALLET_FILE, "utf-8"));
@@ -171,13 +198,17 @@ export async function showTelegramWalletBalance(
   const d = res.data;
 
   const evmLines = (d.evm?.balances || [])
+    .map(normalizeBalance)
+    .filter(Boolean)
     .slice(0, 5)
-    .map((b: any) => `- ${b.symbol}: ${b.formatted}`)
+    .map((b: any) => `- ${b.label}: ${b.value}`)
     .join("\n");
 
   const solLines = (d.solana?.balances || [])
+    .map(normalizeBalance)
+    .filter(Boolean)
     .slice(0, 5)
-    .map((b: any) => `- ${b.symbol}: ${b.formatted}`)
+    .map((b: any) => `- ${b.label}: ${b.value}`)
     .join("\n");
 
   const text = `
