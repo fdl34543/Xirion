@@ -1,5 +1,4 @@
 import inquirer from "inquirer";
-import { adminMenu } from "./admin.js";
 import { walletMenu } from "../x402/wallet.js";
 import { telegramMenu } from "../telegram/menu.js";
 
@@ -58,7 +57,7 @@ export async function mainMenu(): Promise<void> {
       break;
 
     case "admin":
-      await adminMenu();
+      console.log("Access denied. Admin privileges required.");
       break;
 
     case "exit":
