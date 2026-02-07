@@ -138,7 +138,7 @@ The token shows elevated liquidity risk, which significantly impacts its overall
 
 ---
 
-## 📌 Recommendation Labels
+## Recommendation Labels
 
 Xirion translates risk scores into **clear decision guidance**:
 
@@ -153,7 +153,7 @@ Xirion translates risk scores into **clear decision guidance**:
 
 ---
 
-## 🧠 How Xirion Decides
+## How Xirion Decides
 
 * **Heuristic Analysis**
   Deterministic risk signals (honeypot indicators, liquidity depth, concentration, pump.fun status).
@@ -166,7 +166,7 @@ Xirion translates risk scores into **clear decision guidance**:
 
 ---
 
-## 🎯 Why This Matters
+## Why This Matters
 
 * Transparent & auditable decisions
 * Safe-by-design (AI explains, rules decide)
@@ -432,6 +432,6 @@ MIT — see `LICENSE`
   <br>
   <sub>Autonomous intelligence for crypto-native capital</sub>
 </p>
-```
+
 
 
