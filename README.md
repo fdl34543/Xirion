@@ -265,7 +265,8 @@ npm install -g .
 ```env
 # Core
 SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
-SOLANA_PRIVATE_KEY=...
+OPENAI_API_KEY=
+MORALIS_API_KEY=
 
 # Agent Behavior
 XIRION_RISK_PROFILE=medium      # low | medium | high
@@ -304,7 +305,7 @@ Xirion supports **Telegram as a control & alert interface**.
 ```
 /start          → Initialize bot, show Xirion overview & main menu
 /status         → Show current agent status
-/scan           → Trigger on-demand market scan
+/scan           → Trigger token scan
 /decisions      → View recent agent decisions & reasoning
 /alerts on      → Enable Telegram alerts
 /alerts off     → Disable Telegram alerts

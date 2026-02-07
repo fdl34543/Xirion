@@ -9,7 +9,7 @@ import {
   showTelegramWalletActivity,
   showTelegramWalletFunding,
 } from "./telegramWallet.js";
-
+import { handleScanCommand } from "./tgScan.js";
 
 /* =========================
    Types
@@ -86,8 +86,13 @@ export async function startTelegramBot(): Promise<void> {
   }
 
   const baseUrl = `https://api.telegram.org/bot${state.botToken}`;
-  let offset = 0;
 
+  // 🔒 FLUSH OLD UPDATES
+  await axios.get(`${baseUrl}/getUpdates`, {
+    params: { offset: -1 },
+  });
+
+  let offset = 0;
   console.log("Telegram bot listener started.");
 
   while (true) {
@@ -104,23 +109,55 @@ export async function startTelegramBot(): Promise<void> {
       for (const update of updates) {
         offset = update.update_id + 1;
 
+        const chatId =
+          update.message?.chat?.id ??
+          update.callback_query?.message?.chat?.id;
+
+        if (!chatId) continue;
+
+        /* ========= MESSAGE ========= */
+
         if (update.message?.text === "/start") {
-          await handleStartCommand(baseUrl, update.message.chat.id);
+          await handleStartCommand(baseUrl, chatId);
+          continue;
         }
 
         if (update.message?.text === "/wallet") {
-          await showTelegramWalletMenu(baseUrl, update.message.chat.id);
+          await showTelegramWalletMenu(baseUrl, chatId);
+          continue;
         }
+
+        if (update.message?.text?.startsWith("/scan ")) {
+          await handleScanCommand({
+            baseUrl,
+            chatId,
+            text: update.message.text,
+          });
+          continue;
+        }
+
+        if (update.message?.text === "/scan") {
+          await axios.post(`${baseUrl}/sendMessage`, {
+            chat_id: chatId,
+            text: "Usage: /scan <token_address> [x_link]",
+          });
+          continue;
+        }
+
+        /* ========= CALLBACK ========= */
 
         if (update.callback_query) {
           await handleCallbackQuery(baseUrl, update.callback_query);
+          continue;
         }
       }
     } catch (error) {
       console.error("Telegram polling error:", String(error));
+      await new Promise((r) => setTimeout(r, 2000));
     }
   }
 }
+
 
 /* =========================
    Command Handlers
@@ -141,34 +178,40 @@ async function handleStartCommand(baseUrl: string, chatId: number) {
     chat_id: chatId,
     text: XIRION_DESCRIPTION,
     reply_markup: {
-        inline_keyboard: [
+      inline_keyboard: [
         [
-            {
+          {
             text: "Open CLI Docs",
             url: "https://github.com/fdl34543/Xirion",
-            },
-            {
+          },
+          {
             text: "View Project",
             url: "https://colosseum.com/agent-hackathon",
-            },
+          },
         ],
         [
-            {
+          {
             text: "Agent Menu",
             callback_data: "agent_menu",
-            },
-            {
+          },
+          {
             text: "Wallet",
             callback_data: "wallet_menu",
-            },
+          },
         ],
         [
-            {
+          {
+            text: "Analyze Token",
+            callback_data: "analyze_token",
+          },
+        ],
+        [
+          {
             text: "Available Commands",
             callback_data: "show_commands",
-            },
+          },
         ],
-        ],
+      ],
     },
   });
 }
@@ -197,7 +240,7 @@ async function handleCallbackQuery(
 
 /start        Initialize bot and show main menu
 /status       Show current agent status
-/scan         Trigger on-demand market scan
+/scan         Trigger token scan
 /decisions    View recent agent decisions
 /alerts on    Enable Telegram alerts
 /alerts off   Disable Telegram alerts
@@ -244,6 +287,14 @@ async function handleCallbackQuery(
 
   if (data === "wallet_fund") {
     await showTelegramWalletFunding(baseUrl, chatId);
+    return;
+  }
+
+  if (data === "analyze_token") {
+    await axios.post(`${baseUrl}/sendMessage`, {
+      chat_id: chatId,
+      text: "Use /scan <token_address> [x_link] to analyze a token.",
+    });
     return;
   }
 
