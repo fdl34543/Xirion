@@ -1,7 +1,24 @@
 import inquirer from "inquirer";
+import fs from "fs";
+import path from "path";
+
 import { walletMenu } from "../x402/wallet.js";
 import { telegramMenu } from "../telegram/menu.js";
 import { analyzeToken } from "../agent/analyzeToken.js";
+import { createAgent } from "./createAgent.js";
+import { startAgents } from "./startAgent.js";
+import { stopAgent } from "./stopAgent.js";
+import { restartAgent } from "./restartAgent.js";
+import { showAgentStatus } from "./agentStatus.js";
+import { restartCrashedAgents } from "./restartCrashedAgents.js";
+import { startSupervisor } from "./startSupervisor.js";
+
+function getAgentList(): string[] {
+  const dir = path.join(process.cwd(), "src", "agent", "user");
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir).map(f => f.replace(".json", ""));
+}
+
 
 export async function mainMenu(): Promise<void> {
   const answer = await inquirer.prompt<{
@@ -16,6 +33,9 @@ export async function mainMenu(): Promise<void> {
           name: "Start Agent",
           value: "start",
         },
+        { name: "Create Agent", value: "create-agent" },
+        { name: "Stop Agent", value: "stop" },
+        { name: "Restart Agent", value: "restart" },
         {
           name: "Agent Status",
           value: "status",
@@ -46,11 +66,53 @@ export async function mainMenu(): Promise<void> {
 
   switch (answer.action) {
     case "start":
-      console.log("Agent started in dry-run mode.");
+      startAgents();
+      // startSupervisor();
       break;
 
+    case "create-agent":
+      await createAgent();
+      break;
+
+    case "stop": {
+      const agents = getAgentList();
+      if (!agents.length) {
+        console.log("No agents found");
+        break;
+      }
+
+      const { agent } = await inquirer.prompt({
+        type: "select",
+        name: "agent",
+        message: "Select agent to stop:",
+        choices: agents,
+      });
+
+      stopAgent(agent);
+      break;
+    }
+
+    case "restart": {
+      const agents = getAgentList();
+      if (!agents.length) {
+        console.log("No agents found");
+        break;
+      }
+
+      const { agent } = await inquirer.prompt({
+        type: "select",
+        name: "agent",
+        message: "Select agent to restart:",
+        choices: agents,
+      });
+
+      await restartAgent(agent);
+      break;
+    }
+
     case "status":
-      console.log("Agent status: IDLE.");
+      restartCrashedAgents();
+      showAgentStatus();
       break;
 
     case "analyze_token": {

@@ -10,6 +10,10 @@ import {
   showTelegramWalletFunding,
 } from "./telegramWallet.js";
 import { handleScanCommand } from "./tgScan.js";
+import { createAgentInternal } from "../agent/internal/createAgentInternal.js";
+import { startAgents } from "../cli/startAgent.js";
+import { showAgentStatus } from "../cli/agentStatus.js";
+import { startSingleAgent } from "../cli/startSingleAgent.js";
 
 /* =========================
    Types
@@ -29,6 +33,18 @@ type CallbackQuery = {
     };
   };
 };
+
+type CreateAgentState = {
+  step: "name" | "skill";
+  baseName?: string;
+};
+
+type CreateAgentSession = {
+  step: "name" | "skill";
+  baseName?: string;
+};
+
+const createAgentSession = new Map<number, CreateAgentSession>();
 
 /* =========================
    Constants
@@ -87,7 +103,7 @@ export async function startTelegramBot(): Promise<void> {
 
   const baseUrl = `https://api.telegram.org/bot${state.botToken}`;
 
-  // 🔒 FLUSH OLD UPDATES
+  // FLUSH OLD UPDATES
   await axios.get(`${baseUrl}/getUpdates`, {
     params: { offset: -1 },
   });
@@ -142,6 +158,140 @@ export async function startTelegramBot(): Promise<void> {
             text: "Usage: /scan <token_address> [x_link]",
           });
           continue;
+        }
+
+        if (update.message?.text === "/status") {
+          const lines: string[] = [];
+          const originalLog = console.log;
+
+          console.log = (...args: any[]) => {
+            lines.push(args.join(" "));
+          };
+
+          showAgentStatus();
+          console.log = originalLog;
+
+          await axios.post(`${baseUrl}/sendMessage`, {
+            chat_id: chatId,
+            text: lines.length ? lines.join("\n") : "No agent status available",
+          });
+
+          continue;
+        }
+
+        if (update.message?.text === "/createagent") {
+          createAgentSession.set(chatId, { step: "name" });
+
+          await axios.post(`${baseUrl}/sendMessage`, {
+            chat_id: chatId,
+            text: "Enter agent base name:",
+          });
+
+          continue;
+        }
+
+        if (update.message?.text?.startsWith("/startagent")) {
+          const parts = update.message.text.split(" ");
+          const agentName = parts[1];
+
+          if (!agentName) {
+            startAgents();
+
+            await axios.post(`${baseUrl}/sendMessage`, {
+              chat_id: chatId,
+              text: "All agents started",
+            });
+
+            continue;
+          }
+
+          const agentFile = path.join(
+            process.cwd(),
+            "src",
+            "agent",
+            "user",
+            `${agentName}.json`
+          );
+
+          if (!fs.existsSync(agentFile)) {
+            await axios.post(`${baseUrl}/sendMessage`, {
+              chat_id: chatId,
+              text: `Agent not found: ${agentName}`,
+            });
+            continue;
+          }
+
+          startSingleAgent(agentName);
+
+          await axios.post(`${baseUrl}/sendMessage`, {
+            chat_id: chatId,
+            text: `Agent started: ${agentName}`,
+          });
+
+          continue;
+        }
+
+        // ===== CREATE AGENT FLOW (NON-COMMAND MESSAGE) =====
+        const session = createAgentSession.get(chatId);
+
+        if (
+          session &&
+          update.message?.text &&
+          !update.message.text.startsWith("/")
+        ) {
+          const text = update.message.text.trim();
+
+          // STEP 1: BASE NAME
+          if (session.step === "name") {
+            session.baseName = text.toLowerCase();
+            session.step = "skill";
+
+            await axios.post(`${baseUrl}/sendMessage`, {
+              chat_id: chatId,
+              text: [
+                "Select agent skill:",
+                "",
+                "1. DAO_TREASURY",
+                "2. RETAIL_YIELD",
+                "3. ALPHA_DETECTION",
+                "4. PREDICTION_ARBITRAGE",
+                "",
+                "Reply with number",
+              ].join("\n"),
+            });
+
+            continue;
+          }
+
+          // STEP 2: SKILL
+          if (session.step === "skill") {
+            const skillMap: Record<string, any> = {
+              "1": "DAO_TREASURY",
+              "2": "RETAIL_YIELD",
+              "3": "ALPHA_DETECTION",
+              "4": "PREDICTION_ARBITRAGE",
+            };
+
+            const skill = skillMap[text];
+            if (!skill) {
+              await axios.post(`${baseUrl}/sendMessage`, {
+                chat_id: chatId,
+                text: "Invalid selection. Reply with 1, 2, 3, or 4.",
+              });
+              continue;
+            }
+
+            const result = createAgentInternal(session.baseName!, skill);
+
+            createAgentSession.delete(chatId);
+
+            await axios.post(`${baseUrl}/sendMessage`, {
+              chat_id: chatId,
+              text: result.message,
+            });
+
+            continue;
+          }
         }
 
         /* ========= CALLBACK ========= */
@@ -241,8 +391,8 @@ async function handleCallbackQuery(
 /start        Initialize bot and show main menu
 /status       Show current agent status
 /scan         Trigger token scan
-/decisions    View recent agent decisions
-/alerts on    Enable Telegram alerts
+/startagent   Start agent(s)
+/createagent  Create new agent
 /alerts off   Disable Telegram alerts
 /wallet       Open wallet menu (balances, stats, funding)
     `.trim(),

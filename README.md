@@ -112,7 +112,7 @@ using a single unified intelligence core.
 
 ---
 
-## 🔍 Token & Memecoin Analysis (CLI Output)
+## Token & Memecoin Analysis (CLI Output)
 
 Xirion provides a **clear, actionable analysis** for tokens and memecoins by combining on-chain signals, market data, and AI-driven reasoning.
 
@@ -306,8 +306,8 @@ Xirion supports **Telegram as a control & alert interface**.
 /start          → Initialize bot, show Xirion overview & main menu
 /status         → Show current agent status
 /scan           → Trigger token scan
-/decisions      → View recent agent decisions & reasoning
-/alerts on      → Enable Telegram alerts
+/startagent      → Start agent(s)
+/createagent     → Create new agent
 /alerts off     → Disable Telegram alerts
 /wallet         → Open wallet menu (balances, stats, funding)
 ```
