@@ -1,6 +1,7 @@
 import inquirer from "inquirer";
 import { walletMenu } from "../x402/wallet.js";
 import { telegramMenu } from "../telegram/menu.js";
+import { analyzeToken } from "../agent/analyzeToken.js";
 
 export async function mainMenu(): Promise<void> {
   const answer = await inquirer.prompt<{
@@ -18,6 +19,10 @@ export async function mainMenu(): Promise<void> {
         {
           name: "Agent Status",
           value: "status",
+        },
+        {
+          name: "Analyze Token / Memecoin",
+          value: "analyze_token",
         },
         {
           name: "Wallet",
@@ -47,6 +52,35 @@ export async function mainMenu(): Promise<void> {
     case "status":
       console.log("Agent status: IDLE.");
       break;
+
+    case "analyze_token": {
+      const input = await inquirer.prompt<{
+        address: string;
+        twitter?: string;
+      }>([
+        {
+          type: "input",
+          name: "address",
+          message: "Token address:",
+          validate: (v) => (v ? true : "Token address is required"),
+        },
+        {
+          type: "input",
+          name: "twitter",
+          message: "Twitter/X username (optional):",
+        },
+      ]);
+
+      const context = await analyzeToken({
+        address: input.address,
+        twitter: input.twitter || undefined,
+      });
+
+      // console.log("\nAnalyze Token Context:");
+      // console.dir(context, { depth: null });
+      break;
+    }
+
 
     case "wallet":
       await walletMenu();

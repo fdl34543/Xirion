@@ -1,0 +1,15 @@
+{
+  "agent": {
+    "id": 789,
+    "name": "Xerion",
+    "apiKey": "36973a52aab9ef442b82adb2d130638f306252275e9f09f2ee338f6fd9bb2062",
+    "claimUrl": "https://colosseum.com/agent-hackathon/claim/ee75dc1c-a480-41aa-8c25-7b4d9e34c6c4",
+    "skillUrl": "https://colosseum.com/skill.md",
+    "heartbeatUrl": "https://colosseum.com/heartbeat.md"
+  },
+  "project": {
+    "id": 391,
+    "name": "Xirion",
+    "status": "draft"
+  }
+}

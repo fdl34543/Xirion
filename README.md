@@ -39,7 +39,7 @@ Xirion combines:
 Xirion can operate in multiple modes:
 - DAO treasury management  
 - Retail yield optimization  
-- Token & memecoin alpha detection  
+- Token & memecoin alpha detection, analyze, and trading 
 - Prediction market arbitrage  
 
 All powered by **one unified intelligence core**.
@@ -108,7 +108,70 @@ using a single unified intelligence core.
 * Early momentum detection
 * Rug-risk analysis (LP, dev wallet, concentration)
 * **Pump Probability Score (0–100)**
-* Risk classification (Low / Medium / High)
+* Risk classification (ACCUMULATE | MONITOR | AVOID)
+
+---
+
+## 🔍 Token & Memecoin Analysis (CLI Output)
+
+Xirion provides a **clear, actionable analysis** for tokens and memecoins by combining on-chain signals, market data, and AI-driven reasoning.
+
+### Example Output
+
+```text
+TrumpetSwan (TrumpSwan)
+Logo: https://logo.moralis.io/solana-mainnet_8q96A4hmV5YZ9YypN8EHx76ySrRuwUmS8XUHmduGpump.webp
+
+Risk Analysis
+Honeypot Risk      [████░░░░░░░░░░░░░░░░] 20%
+Rug Pull Risk      [██████░░░░░░░░░░░░░░] 30%
+Liquidity Risk     [████████████████░░░░] 80%
+Concentration Risk [███████░░░░░░░░░░░░░] 35%
+
+Overall Risk: 51.25%
+
+Recommendation: MONITOR
+
+AI Analysis:
+The token shows elevated liquidity risk, which significantly impacts its overall risk profile.
+```
+
+---
+
+## 📌 Recommendation Labels
+
+Xirion translates risk scores into **clear decision guidance**:
+
+* **ACCUMULATE**
+  Risk is relatively low. Token conditions are healthy enough to consider gradual entry.
+
+* **MONITOR**
+  Mixed signals. Potential opportunity exists, but risks require close observation.
+
+* **AVOID**
+  High risk detected. Entry is not recommended under current conditions.
+
+---
+
+## 🧠 How Xirion Decides
+
+* **Heuristic Analysis**
+  Deterministic risk signals (honeypot indicators, liquidity depth, concentration, pump.fun status).
+
+* **AI Reasoning (Agent Xerion)**
+  Normalizes risk scores, evaluates uncertainty, and provides human-readable explanations.
+
+* **Rule-Based Recommendation**
+  Final decision (`ACCUMULATE / MONITOR / AVOID`) is derived from risk thresholds — not hallucinated by AI.
+
+---
+
+## 🎯 Why This Matters
+
+* Transparent & auditable decisions
+* Safe-by-design (AI explains, rules decide)
+* Suitable for CLI, Telegram, and automated agent workflows
+* Hackathon-ready with real-world utility
 
 ---
 

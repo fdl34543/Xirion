@@ -211,7 +211,11 @@ async function createProject() {
     confirm: boolean;
   }>([
     { type: "input", name: "name", message: "Project name:" },
-    { type: "input", name: "description", message: "Project description:" },
+    {
+      type: "editor",
+      name: "description",
+      message: "Project description (editor will open):",
+    },
     { type: "input", name: "repoLink", message: "Repository link:" },
     {
       type: "input",
@@ -231,13 +235,14 @@ async function createProject() {
   ]);
 
   if (!input.confirm) return;
+  const description = input.description.trim().replace(/\r\n/g, "\n");
 
   try {
     const response = await axios.post(
       "https://agents.colosseum.com/api/my-project",
       {
         name: input.name,
-        description: input.description,
+        description: description,
         repoLink: input.repoLink,
         solanaIntegration: input.solanaIntegration,
         tags: input.tags.split(",").map((t) => t.trim()),
