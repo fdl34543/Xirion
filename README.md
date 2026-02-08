@@ -355,7 +355,7 @@ and optionally simulates trade execution.
 alphaDetection agent
         │
         ▼
-Moralis Trending Tokens (Top 30)
+Trending Tokens (Top 30)
         │
         ▼
 For each token:
