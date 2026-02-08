@@ -30,7 +30,7 @@
 Xirion API is a lightweight internal API designed to support AI-driven token analysis, alpha detection, and on-chain risk evaluation.  
 This API is primarily consumed by internal agents and CLI tools.
 
-Base URL (local):
+Base URL:
 ```
 
 [https://xirion.onrender.com/api](https://xirion.onrender.com/api)
