@@ -80,6 +80,78 @@ using a single unified intelligence core.
 
 ---
 
+## Architecture
+
+```
+  ┌───────────────────────────────────────────────────────────────────────────┐
+  │                                   GATEWAY                                 │
+  │        CLI • Telegram Bot • HTTP API • Auth • Rate Limiting               │
+  └─────────────────────────────────────┬─────────────────────────────────────┘
+                                        │
+        ┌───────────────────────────────┼───────────────────────────────┐
+        ▼                               ▼                               ▼
+┌─────────────────────┐       ┌─────────────────────┐       ┌─────────────────────┐
+│     INTERFACES      │       │     XIRION CORE     │       │        FEEDS        │
+│                     │       │   (Single Agent)    │       │                     │
+├─────────────────────┤       ├─────────────────────┤       ├─────────────────────┤
+│ CLI                 │       │ Observe             │       │ On-chain Data       │
+│ Telegram Bot        │       │ Score               │       │ - Solana RPC        │
+│ Commands & Alerts   │       │ Decide              │       │ - Helius            │
+│                     │       │ Act                 │       │                     │
+│                     │       │                     │       │ DeFi & Market Data  │
+│                     │       │ Memory              │       │ - Jupiter           │
+│                     │       │ Strategy Bus        │       │ - pump.fun          │
+│                     │       │                     │       │ - Pyth              │
+│                     │       │                     │       │                     │
+│                     │       │                     │       │ Prediction Markets  │
+│                     │       │                     │       │ - Polymarket        │
+│                     │       │                     │       │ - Kalshi            │
+│                     │       │                     │       │ - Opinion           │
+│                     │       │                     │       │                     │
+│                     │       │                     │       │ Community           │
+│                     │       │                     │       │ - X                 │
+│                     │       │                     │       │ - Telegram          │
+└─────────────────────┘       └─────────────────────┘       └─────────────────────┘
+        │                               │                               │
+        └───────────────────────────────┼───────────────────────────────┘
+                                        │
+        ┌───────────────────────────────┼───────────────────────────────┐
+        ▼                               ▼                               ▼
+┌─────────────────────┐       ┌─────────────────────┐       ┌─────────────────────┐
+│   DECISION ENGINE   │       │      EXECUTION      │       │       ALERTING      │
+│                     │       │                     │       │                     │
+├─────────────────────┤       ├─────────────────────┤       ├─────────────────────┤
+│ Risk Scoring        │       │ DEX Trading         │       │ Telegram Push       │
+│ Opportunity Ranking │       │ (Jupiter)           │       │ CLI Output          │
+│ Context Awareness   │       │                     │       │ Webhooks            │
+│ (wallet & market)   │       │ Yield Deployment    │       │                     │
+│                     │       │ (Kamino, etc)       │       │                     │
+│ Reasoning Log       │       │                     │       │                     │
+│                     │       │ Prediction Trades   │       │                     │
+│                     │       │ - Polymarket        │       │                     │
+│                     │       │ - Kalshi            │       │                     │
+│                     │       │ - Opinion           │       │                     │
+│                     │       │                     │       │                     │
+│                     │       │ Dry-run / Live      │       │                     │
+└─────────────────────┘       └─────────────────────┘       └─────────────────────┘
+                                        │
+                     ┌──────────────────┴──────────────────┐
+                     ▼                                     ▼
+             ┌─────────────────────┐               ┌─────────────────────┐
+             │     SOLANA DeFi     │               │        STORAGE      │
+             │                     │               │                     │
+             ├─────────────────────┤               ├─────────────────────┤
+             │ Jupiter             │               │ Agent State         │
+             │ Kamino              │               │ Decisions           │
+             │ Marinade            │               │ Scores              │
+             │ Sanctum             │               │ Logs                │
+             │ pump.fun            │               │ Market Snapshots    │
+             └─────────────────────┘               └─────────────────────┘
+
+```
+
+---
+
 ## Features
 
 ### Intelligence Core
@@ -246,6 +318,239 @@ using one shared intelligence core.
 
 ---
 
+## Agent Lifecycle
+
+Each Xirion agent runs as an **independent process** with a single dedicated skill.
+
+### Agent Principles
+
+* **1 Agent = 1 Skill**
+* Stateless execution loop (state persisted to disk)
+* Crash-safe (can be restarted by supervisor)
+* Dry-run or execution mode
+* Fully observable via logs & Telegram alerts
+
+Example agent roles:
+
+```
+echo-alpha        → Token & memecoin alpha detection
+verlion-dao       → DAO treasury monitoring
+verge-yield       → Yield optimization
+cube-prediction   → Prediction market intelligence
+```
+
+---
+
+## Alpha Detection Agent
+
+### Overview
+
+The **Alpha Detection Agent** continuously scans trending tokens on Solana,
+analyzes them using on-chain + AI reasoning,
+and optionally simulates trade execution.
+
+### Execution Flow
+
+```
+alphaDetection agent
+        │
+        ▼
+Moralis Trending Tokens (Top 30)
+        │
+        ▼
+For each token:
+    analyzeToken(token)
+        │
+        ▼
+AI config decision (ai/config.ts)
+        │
+        ├─ no winner → idle
+        │
+        └─ winner selected
+               │
+               ▼
+        Alpha alert → Telegram
+               │
+               ▼
+        Simulated buy trade
+               │
+               ▼
+        Trade alert → Telegram
+```
+
+### Scan Interval
+
+* Default: **once every 1 hour**
+* Loop-based execution inside agent process
+* No manual `/scan` required for agent mode
+
+---
+
+## Token Analysis
+
+Token analysis is handled by a **fixed, reusable module**:
+
+```
+src/agent/analyzeToken.ts
+```
+
+Characteristics:
+
+* Deterministic scoring
+* Structured JSON output
+* AI-assisted reasoning
+* No hallucinated decisions
+* Safe to call in loops
+
+Each token produces:
+
+* Risk scores
+* Confidence score
+* Recommendation
+* Explanation
+
+---
+
+## AI Decision Configuration
+
+Xirion uses a centralized decision config:
+
+```
+src/ai/config.ts
+```
+
+Responsibilities:
+
+* Normalize analysis results
+* Decide whether a **winner exists**
+* Allow **“no winner”** outcome
+* Prevent forced decisions
+* Shared across all agents
+
+This ensures:
+
+* Consistent behavior
+* No over-trading
+* Reduced false positives
+
+---
+
+## Alpha Trade
+
+When a winner is selected, the agent performs a **buy trade**.
+
+### Trade Module
+
+```
+src/agent/trade/alphaTrade.ts
+```
+
+What it does:
+
+* Calculates buy size based on confidence
+* Generates fake tx hash
+* Logs execution to CLI
+* Sends trade alert to Telegram
+
+### Example CLI Output
+
+```text
+[echo-alpha] Executing BUY for alpha token PUMP
+[echo-alpha] Confidence=0.9, Score=90
+[echo-alpha] BUY EXECUTED 
+[echo-alpha] Amount=$1850
+[echo-alpha] EntryPrice=$0.004213
+[echo-alpha] TxHash=TX_1738853200123
+```
+
+---
+
+### Alpha Alert Types
+
+Xirion sends two types of alerts:
+
+#### 1. Alpha Detection Alert
+
+Triggered when a winner token is selected.
+
+Includes:
+
+* Token info
+* Score & confidence
+* AI reasoning
+
+#### 2. Alpha Trade Alert 
+
+Triggered after simulated buy execution.
+
+Includes:
+
+* Buy amount
+* Entry price
+* Simulated transaction hash
+
+---
+
+## Agent Supervisor
+
+A supervisor agent can:
+
+* Monitor all running agents
+* Detect crashes
+* Restart agents automatically
+* Provide unified CLI access
+
+This enables **long-running autonomous operation**.
+
+---
+
+## Design Philosophy
+
+Xirion is built around these principles:
+
+* **Autonomous by default**
+* **Explainable decisions**
+* **Safe execution**
+* **Composable agents**
+* **Production-first architecture**
+
+It is not a chatbot.
+It is an **intelligent execution system**.
+
+---
+
+### Register Telegram Bot via CLI
+
+This will:
+
+* Validate bot token
+* Save config locally
+* Enable alerts & commands via Telegram
+
+---
+
+## Telegram Bot
+
+Xirion supports **Telegram as a control & alert interface**.
+
+### Supported Commands
+
+```
+/start          → Initialize bot, show Xirion overview & main menu
+/status         → Show current agent status
+/scan           → Trigger token scan
+/startagent      → Start agent(s)
+/createagent     → Create new agent
+/alerts off     → Disable Telegram alerts
+/wallet         → Open wallet menu (balances, stats, funding)
+```
+
+Telegram bot can be:
+
+* Registered via CLI
+
+---
+
 ## Quick Start
 
 ### 1. Install
@@ -285,110 +590,6 @@ npx xirion
 or
 xirion
 ```
-
-### Register Telegram Bot via CLI
-
-This will:
-
-* Validate bot token
-* Save config locally
-* Enable alerts & commands via Telegram
-
----
-
-## Telegram Bot
-
-Xirion supports **Telegram as a control & alert interface**.
-
-### Supported Commands
-
-```
-/start          → Initialize bot, show Xirion overview & main menu
-/status         → Show current agent status
-/scan           → Trigger token scan
-/startagent      → Start agent(s)
-/createagent     → Create new agent
-/alerts off     → Disable Telegram alerts
-/wallet         → Open wallet menu (balances, stats, funding)
-```
-
-Telegram bot can be:
-
-* Registered via CLI
-
----
-
-## Architecture
-
-```
-  ┌───────────────────────────────────────────────────────────────────────────┐
-  │                                   GATEWAY                                 │
-  │        CLI • Telegram Bot • HTTP API • Auth • Rate Limiting               │
-  └─────────────────────────────────────┬─────────────────────────────────────┘
-                                        │
-        ┌───────────────────────────────┼───────────────────────────────┐
-        ▼                               ▼                               ▼
-┌─────────────────────┐       ┌─────────────────────┐       ┌─────────────────────┐
-│     INTERFACES      │       │     XIRION CORE     │       │        FEEDS        │
-│                     │       │   (Single Agent)    │       │                     │
-├─────────────────────┤       ├─────────────────────┤       ├─────────────────────┤
-│ CLI                 │       │ Observe             │       │ On-chain Data       │
-│ Telegram Bot        │       │ Score               │       │ - Solana RPC        │
-│ Commands & Alerts   │       │ Decide              │       │ - Helius            │
-│                     │       │ Act                 │       │                     │
-│                     │       │                     │       │ DeFi & Market Data  │
-│                     │       │ Memory              │       │ - Jupiter           │
-│                     │       │ Strategy Bus        │       │ - pump.fun          │
-│                     │       │                     │       │ - Pyth              │
-│                     │       │                     │       │                     │
-│                     │       │                     │       │ Prediction Markets  │
-│                     │       │                     │       │ - Polymarket        │
-│                     │       │                     │       │ - Kalshi            │
-│                     │       │                     │       │ - Opinion           │
-│                     │       │                     │       │                     │
-│                     │       │                     │       │ Community           │
-│                     │       │                     │       │ - X                 │
-│                     │       │                     │       │ - Telegram          │
-└─────────────────────┘       └─────────────────────┘       └─────────────────────┘
-        │                               │                               │
-        └───────────────────────────────┼───────────────────────────────┘
-                                        │
-        ┌───────────────────────────────┼───────────────────────────────┐
-        ▼                               ▼                               ▼
-┌─────────────────────┐       ┌─────────────────────┐       ┌─────────────────────┐
-│   DECISION ENGINE   │       │      EXECUTION      │       │       ALERTING      │
-│                     │       │                     │       │                     │
-├─────────────────────┤       ├─────────────────────┤       ├─────────────────────┤
-│ Risk Scoring        │       │ DEX Trading         │       │ Telegram Push       │
-│ Opportunity Ranking │       │ (Jupiter)           │       │ CLI Output          │
-│ Context Awareness   │       │                     │       │ Webhooks            │
-│ (wallet & market)   │       │ Yield Deployment    │       │                     │
-│                     │       │ (Kamino, etc)       │       │                     │
-│ Reasoning Log       │       │                     │       │                     │
-│                     │       │ Prediction Trades   │       │                     │
-│                     │       │ - Polymarket        │       │                     │
-│                     │       │ - Kalshi            │       │                     │
-│                     │       │ - Opinion           │       │                     │
-│                     │       │                     │       │                     │
-│                     │       │ Dry-run / Live      │       │                     │
-└─────────────────────┘       └─────────────────────┘       └─────────────────────┘
-                                        │
-                     ┌──────────────────┴──────────────────┐
-                     ▼                                     ▼
-             ┌─────────────────────┐               ┌─────────────────────┐
-             │     SOLANA DeFi     │               │        STORAGE      │
-             │                     │               │                     │
-             ├─────────────────────┤               ├─────────────────────┤
-             │ Jupiter             │               │ Agent State         │
-             │ Kamino              │               │ Decisions           │
-             │ Marinade            │               │ Scores              │
-             │ Sanctum             │               │ Logs                │
-             │ pump.fun            │               │ Market Snapshots    │
-             └─────────────────────┘               └─────────────────────┘
-
-```
-
----
 
 ## Safety & Transparency
 

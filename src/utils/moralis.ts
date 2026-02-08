@@ -62,3 +62,48 @@ export function moralisEvm(): AxiosInstance {
   }
   return _moralisEvm;
 }
+
+export type MoralisTrendingToken = {
+  chainId: string;
+  tokenAddress: string;
+  name: string;
+  symbol: string;
+  decimals: number;
+  logo?: string;
+  usdPrice?: number;
+  createdAt?: number;
+  marketCap?: number;
+  liquidityUsd?: number;
+  holders?: number;
+  pricePercentChange?: Record<string, number>;
+  totalVolume?: Record<string, number>;
+  transactions?: Record<string, number>;
+  buyTransactions?: Record<string, number>;
+  sellTransactions?: Record<string, number>;
+  buyers?: Record<string, number>;
+  sellers?: Record<string, number>;
+};
+
+export async function fetchTrendingTokens(): Promise<MoralisTrendingToken[]> {
+  const apiKey = process.env.MORALIS_API_KEY;
+  if (!apiKey) {
+    throw new Error("MORALIS_API_KEY is missing");
+  }
+
+  const res = await fetch(
+    "https://deep-index.moralis.io/api/v2.2/tokens/trending?chain=solana&limit=30",
+    {
+      method: "GET",
+      headers: {
+        accept: "application/json",
+        "X-API-Key": apiKey,
+      },
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error(`Moralis API error: ${res.status}`);
+  }
+
+  return res.json();
+}

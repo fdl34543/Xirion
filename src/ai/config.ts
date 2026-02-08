@@ -16,7 +16,7 @@ function getOpenAIClient(): OpenAI {
   return new OpenAI({ apiKey });
 }
 
-export async function runAgentXerion(params: {
+export async function runAgentXirion(params: {
   system?: string;
   messages: Array<{
     role: "system" | "user" | "assistant";

@@ -44,6 +44,12 @@ type CreateAgentSession = {
   baseName?: string;
 };
 
+let telegramRuntimeState: {
+  enabled: boolean;
+  botToken: string;
+  chatId?: number;
+} | null = null;
+
 const createAgentSession = new Map<number, CreateAgentSession>();
 
 /* =========================
@@ -85,6 +91,11 @@ function loadTelegramState(): TelegramState | null {
   return JSON.parse(fs.readFileSync(STATE_FILE, "utf-8"));
 }
 
+
+export function getTelegramRuntimeState() {
+  return telegramRuntimeState;
+}
+
 /* =========================
    Bot Runner
    ========================= */
@@ -100,6 +111,11 @@ export async function startTelegramBot(): Promise<void> {
     console.log("Telegram bot is disabled or not configured.");
     return;
   }
+
+  telegramRuntimeState = {
+    enabled: state.enabled,
+    botToken: state.botToken,
+  };
 
   const baseUrl = `https://api.telegram.org/bot${state.botToken}`;
 
@@ -131,9 +147,17 @@ export async function startTelegramBot(): Promise<void> {
 
         if (!chatId) continue;
 
+        if (chatId && telegramRuntimeState && !telegramRuntimeState.chatId) {
+          telegramRuntimeState.chatId = chatId;
+        }
+
+
         /* ========= MESSAGE ========= */
 
         if (update.message?.text === "/start") {
+           if (telegramRuntimeState) {
+              telegramRuntimeState.chatId = chatId;
+            }
           await handleStartCommand(baseUrl, chatId);
           continue;
         }

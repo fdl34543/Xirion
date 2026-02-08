@@ -3,7 +3,7 @@ import { fetchMarketData } from "../intelligence/market.js";
 import { fetchOnchainData } from "../intelligence/onchain.js";
 import { fetchMemecoinData } from "../intelligence/memecoin.js";
 
-import { runAgentXerion } from "../ai/config.js";
+import { runAgentXirion } from "../ai/config.js";
 import { buildRiskPrompt } from "./prompts/riskPrompt.js";
 import { renderBar } from "../utils/render.js";
 
@@ -71,7 +71,7 @@ export async function analyzeToken(input: {
     heuristics,
   });
 
-  const ai = await runAgentXerion({
+  const ai = await runAgentXirion({
     system: prompt.system,
     messages: [{ role: "user", content: prompt.user }],
   });

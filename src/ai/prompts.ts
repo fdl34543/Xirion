@@ -35,3 +35,30 @@ Tasks:
 }
 `;
 }
+
+export function selectBestTokenPrompt(tokens: any[]) {
+  return `
+You are a crypto alpha detection AI.
+
+Input is a list of analyzed tokens with Risk Analysis, Honeypot Risk, Rug Pull Risk, Liquidity Risk, Liquidity Risk, Concentration Risk, AI Analysis, metrics, scores, risks, and momentum.
+
+Your task:
+- Select exactly ONE best token OR decide "noWinner"
+- Prefer strong momentum, healthy liquidity, low risk
+- Avoid scams, illiquid tokens, or extreme sell pressure
+
+Respond ONLY in JSON format:
+
+{
+  "noWinner": boolean,
+  "tokenAddress": string,
+  "symbol": string,
+  "score": number,
+  "confidence": number,
+  "reasons": string[]
+}
+
+Tokens:
+${JSON.stringify(tokens, null, 2)}
+`;
+}
