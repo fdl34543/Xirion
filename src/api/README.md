@@ -31,11 +31,7 @@ Xirion API is a lightweight internal API designed to support AI-driven token ana
 This API is primarily consumed by internal agents and CLI tools.
 
 Base URL:
-```
-
 [https://xirion.onrender.com/api](https://xirion.onrender.com/api)
-
-````
 
 ---
 
@@ -177,11 +173,78 @@ Body:
 }
 ```
 
-#### Notes
+## Yield Pools
 
-* Requires `MORALIS_API_KEY` to be set in `.env`
-* Designed for deep analysis, not high-frequency calls
-* Suitable for agent decision-making and risk filtering
+### `POST /yield/pool`
+
+Retrieve risk-adjusted yield pool opportunities with AI-assisted analysis across supported chains.
+
+#### Request
+
+```http
+POST /api/yield/pool
+Content-Type: application/json
+````
+
+Body:
+
+```json
+{}
+```
+
+#### Response
+
+```json
+{
+  "timestamp": 1770583559580,
+  "data": {
+    "status": "success",
+    "data": {
+      "chain": "Solana",
+      "summary": "Top 5 risk-adjusted yield opportunities identified based on APY trends, TVL, and risk factors.",
+      "strategy": "conservative",
+      "pools": [
+        {
+          "poolId": "20d99514-4d6b-4ff3-bbec-0732971885a0",
+          "chain": "Solana",
+          "project": "raydium-amm",
+          "symbol": "WSOL-PIPPIN",
+          "tvlUsd": 9844215,
+          "apy": 240.36,
+          "apyPct1D": 151.12,
+          "apyPct7D": 144.06,
+          "apyPct30D": 147.27,
+          "stablecoin": false,
+          "exposure": "multi",
+          "ilRisk": "yes",
+          "predictions": {
+            "predictedClass": "Down",
+            "predictedProbability": 98,
+            "binnedConfidence": 3
+          },
+          "analysis": {
+            "score": 8.5,
+            "riskLevel": "low",
+            "reason": "High TVL indicates reliability, moderate APY with stable trends."
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+---
+
+## Design Notes
+
+* No authentication is enabled by default (internal usage)
+* Response format is consistent: `{ status, data }`
+* External dependencies (Moralis) are isolated to specific endpoints
+* API is designed to be consumed by autonomous agents and CLI tools
+* Returns AI-ranked yield pools based on APY trends, TVL, and risk signals
+* Includes short-term and medium-term APY changes (1D / 7D / 30D)
+* `analysis` provides a human-readable risk rationale per pool
 
 ---
 
@@ -198,7 +261,7 @@ Ensure `dotenv.config()` is called in the API entry point.
 
 ---
 
-## Running the API (Local)
+## Running the API
 
 ```bash
 npx tsx src/api/index.ts
@@ -225,15 +288,6 @@ This script tests:
 * `/heartbeat`
 * `/alpha`
 * `/analyzeToken`
-
----
-
-## Design Notes
-
-* No authentication is enabled by default (internal usage)
-* Response format is consistent: `{ status, data }`
-* External dependencies (Moralis) are isolated to specific endpoints
-* API is designed to be consumed by autonomous agents and CLI tools
 
 ---
 

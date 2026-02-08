@@ -1,4 +1,4 @@
-const BASE_URL = "http://127.0.0.1:3001/api";
+const BASE_URL = "https://xirion.onrender.com/api";
 
 async function test(
   name: string,
@@ -52,6 +52,11 @@ async function run(): Promise<void> {
     body: JSON.stringify({
       tokenAddress: "F2HKzbqS6szcNKNmDgs8M7f5Ss8TSXPRbZEG6oL8pump",
     }),
+  });
+
+  await test("Yield Pool", "/yield/pool", {
+    method: "POST",
+    body: JSON.stringify({}),
   });
 
   console.log("=== API TEST END ===");

@@ -22,6 +22,7 @@
   <a href="#cli">CLI</a> •
   <a href="#telegram-bot">Telegram Bot</a> •
   <a href="#architecture">Architecture</a>
+  <a href="src/api/README.md">API Docs</a>
 </p>
 
 ---
@@ -177,6 +178,7 @@ curl https://xirion.onrender.com/api/heartbeat
 | GET    | `/heartbeat`    | Service health check              |
 | POST   | `/alpha`        | AI-based alpha detection          |
 | POST   | `/analyzeToken` | Deep token risk & market analysis |
+| POST   | `/yield/pool`   | AI-ranked yield pool opportunities|
 
 ### API Documentation
 

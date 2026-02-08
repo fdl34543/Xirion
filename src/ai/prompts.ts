@@ -62,3 +62,55 @@ Tokens:
 ${JSON.stringify(tokens, null, 2)}
 `;
 }
+
+export function yieldAnalysisPrompt(input: {
+  chain: string;
+  pools: any[];
+}) {
+  return `
+You are an autonomous on-chain yield optimization agent.
+
+You MUST return a VALID JSON object.
+Do NOT include markdown.
+Do NOT include explanations.
+Do NOT include extra text.
+
+TASK:
+Analyze Solana yield pools and select the TOP 5 best risk-adjusted opportunities.
+
+RULES:
+- Analyze ONLY pools from the given chain
+- Preserve all original pool fields
+- DO NOT remove or rename any field
+- ONLY add an "analysis" object
+- APY trend priority: 30D > 7D > 1D
+- Higher TVL = more reliable
+- Penalize high volatility and low TVL
+- Prefer stablecoin & low IL pools when possible
+
+RESPONSE SCHEMA (STRICT):
+{
+  "status": "success",
+  "data": {
+    "chain": "${input.chain}",
+    "summary": string,
+    "strategy": "conservative" | "balanced" | "aggressive",
+    "pools": [
+      {
+        "...original pool fields",
+        "analysis": {
+          "score": number,
+          "riskLevel": "low" | "medium" | "high",
+          "reason": string
+        }
+      }
+    ]
+  }
+}
+
+INPUT POOLS JSON:
+${JSON.stringify(input.pools, null, 2)}
+`;
+}
+
+
