@@ -1,11 +1,62 @@
 import inquirer from "inquirer";
 import { loadAdmins, saveAdmins } from "../security/admin.js";
 import { registMenu } from "../colosseum/regist.js";
-import { forumMenu } from "../colosseum/forum.js";
+import { forumMenu, createForumPost } from "../colosseum/forum.js";
 
 type AdminAnswer = {
   action: string;
 };
+
+export async function createForumPostCli(): Promise<void> {
+  const answers = await inquirer.prompt([
+    {
+      type: "password",
+      name: "apiKey",
+      message: "Colosseum API Key:",
+      mask: "*",
+    },
+    {
+      type: "input",
+      name: "title",
+      message: "Forum post title:",
+      validate: (v: string) =>
+        v.length > 5 || "Title must be at least 6 characters",
+    },
+    {
+      type: "editor",
+      name: "body",
+      message: "Forum post body (editor will open):",
+      validate: (v: string) =>
+        v.length > 20 || "Body must be at least 20 characters",
+    },
+    {
+      type: "input",
+      name: "tags",
+      message: "Tags (comma separated):",
+      filter: (v: string) =>
+        v
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean),
+    },
+  ]);
+
+  try {
+    const post = await createForumPost({
+      apiKey: answers.apiKey,
+      title: answers.title,
+      body: answers.body,
+      tags: answers.tags,
+    });
+
+    console.log("Forum post created successfully");
+    console.log("Post ID:", post.id);
+    console.log("Title:", post.title);
+    console.log("Tags:", post.tags.join(", "));
+  } catch (err) {
+    console.error("Failed to create forum post", err);
+  }
+}
 
 export async function adminMenu(): Promise<void> {
   let admins = loadAdmins();
@@ -47,6 +98,10 @@ export async function adminMenu(): Promise<void> {
           value: "forum",
         },
         {
+          name: "Create Colosseum Forum Post",
+          value: "create_forum",
+        },
+        {
           name: "Confirm agent update",
           value: "confirm",
         },
@@ -65,6 +120,10 @@ export async function adminMenu(): Promise<void> {
 
     case "forum":
       await forumMenu();
+      break;
+
+    case "create_forum":
+      await createForumPostCli();
       break;
 
     case "confirm":

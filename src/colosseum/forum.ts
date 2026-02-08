@@ -445,3 +445,39 @@ async function searchForum() {
 
   console.log(response.data.results);
 }
+
+type CreateForumPostInput = {
+  apiKey: string;
+  title: string;
+  body: string;
+  tags: string[];
+};
+
+type ForumPostResponse = {
+  id: string;
+  title: string;
+  body: string;
+  tags: string[];
+  createdAt: string;
+};
+
+export async function createForumPost(
+  input: CreateForumPostInput
+): Promise<ForumPostResponse> {
+  const response = await axios.post(
+    "https://agents.colosseum.com/api/forum/posts",
+    {
+      title: input.title,
+      body: input.body,
+      tags: input.tags,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${input.apiKey}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  return response.data;
+}
