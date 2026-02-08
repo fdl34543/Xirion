@@ -37,7 +37,7 @@ export async function alphaTrade(
     `[${input.agent}] Executing BUY ${input.symbol} with ${amountLamports} lamports`
   );
 
-  //  /order (quote)
+  // 2️⃣ /order (quote)
   const orderRes = await axios.get(
     "https://api.jup.ag/ultra/v1/order",
     {
