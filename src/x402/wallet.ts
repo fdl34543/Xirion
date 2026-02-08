@@ -42,7 +42,7 @@ function getBalanceLabel(b: any): string {
    Storage Helpers
 ========================= */
 
-function loadWallet(): WalletConfig | null {
+export function loadWallet(): WalletConfig | null {
   if (!fs.existsSync(STORAGE_PATH)) {
     return null;
   }

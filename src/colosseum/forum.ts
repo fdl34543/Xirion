@@ -133,7 +133,13 @@ async function createPost() {
     tags: string;
   }>([
     { type: "input", name: "title", message: "Post title:" },
-    { type: "input", name: "body", message: "Post body:" },
+    {
+      type: "editor",
+      name: "body",
+      message: "Forum post body (editor will open):",
+      validate: (v: string) =>
+        v.length > 20 || "Body must be at least 20 characters",
+    },
     {
       type: "input",
       name: "tags",
@@ -446,47 +452,47 @@ async function searchForum() {
   console.log(response.data.results);
 }
 
-// type CreateForumPostInput = {
-//   apiKey: string;
-//   title: string;
-//   body: string;
-//   tags: string[];
-// };
+type CreateForumPostInput = {
+  apiKey: string;
+  title: string;
+  body: string;
+  tags: string[];
+};
 
-// type ForumPostResponse = {
-//   id: string;
-//   title: string;
-//   body: string;
-//   tags: string[];
-//   createdAt: string;
-// };
+type ForumPostResponse = {
+  id: string;
+  title: string;
+  body: string;
+  tags: string[];
+  createdAt: string;
+};
 
 
-// export async function createForumPost(
-//   input: CreateForumPostInput
-// ): Promise<ForumPostResponse> {
-//   try {
-//     const apiKey = getApiKey();
-//     const response = await axios.post(
-//       "https://agents.colosseum.com/api/forum/posts",
-//       {
-//         title: input.title,
-//         body: input.body,
-//         tags: input.tags,
-//       },
-//       {
-//         headers: {
-//           Authorization: `Bearer ${apiKey}`,
-//           "Content-Type": "application/json",
-//         },
-//       }
-//     );
+export async function createForumPost(
+  input: CreateForumPostInput
+): Promise<ForumPostResponse> {
+  try {
+    const apiKey = getApiKey();
+    const response = await axios.post(
+      "https://agents.colosseum.com/api/forum/posts",
+      {
+        title: input.title,
+        body: input.body,
+        tags: input.tags,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
-//     return response.data;
-//   } catch (err: any) {
-//     const apiError = err.response?.data;
-//     throw new Error(
-//       `Forum API error: ${JSON.stringify(apiError ?? err.message)}`
-//     );
-//   }
-// }
+    return response.data;
+  } catch (err: any) {
+    const apiError = err.response?.data;
+    throw new Error(
+      `Forum API error: ${JSON.stringify(apiError ?? err.message)}`
+    );
+  }
+}

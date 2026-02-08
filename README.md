@@ -435,9 +435,31 @@ This ensures:
 
 ---
 
-## Alpha Trade
+## Alpha Detection & Trading
 
-When a winner is selected, the agent performs a **buy trade**.
+### Alpha Detection
+
+The alpha agent continuously scans trending tokens and evaluates them using a deterministic scoring model based on:
+
+* Liquidity & market structure
+* Holder distribution
+* Transaction quality
+* Risk indicators (honeypot, rug probability)
+
+The LLM is used **only to explain reasoning**, not to decide execution.
+
+---
+
+### Alpha Trade Execution
+
+Xirion supports **real token swaps** via Jupiter with strict execution controls.
+
+**Key principles:**
+
+* Input exposure is fixed (SOL / USDC), not output token amount
+* Trade size is deterministic and derived from confidence score
+* AMM pricing determines received token amount
+* No blind execution — all trades are gated and logged
 
 ### Trade Module
 
@@ -445,12 +467,71 @@ When a winner is selected, the agent performs a **buy trade**.
 src/agent/trade/alphaTrade.ts
 ```
 
-What it does:
+---
+## Execution Modes
 
-* Calculates buy size based on confidence
-* Generates fake tx hash
-* Logs execution to CLI
-* Sends trade alert to Telegram
+Xirion supports three execution modes:
+
+### 1. Dry-run (default)
+
+* Analyze and score tokens
+* Log decisions
+* No on-chain action
+
+### 2. Sign-only
+
+* Build and sign raw transactions
+* Do not broadcast
+* Useful for audits and approvals
+
+### 3. Execute (real trade)
+
+* Execute swaps via Jupiter
+* Requires explicit enablement
+* Protected by execution guards
+
+Execution can be disabled instantly via configuration.
+
+---
+
+## Safety & Risk Controls
+
+When real execution is enabled, Xirion enforces:
+
+* Execution kill switch
+* Maximum exposure per trade
+* Confidence-based position sizing
+* Cooldown to prevent over-trading
+* Full transaction audit logs
+
+These controls ensure trades are **intentional, bounded, and explainable**.
+
+---
+
+## Signing & Execution Model
+
+Xirion intentionally separates concerns:
+
+* **SignerAdapter**
+  Responsible only for signing raw transactions for known on-chain addresses
+
+* **ExecutionAdapter**
+  Responsible for broadcasting or simulating transactions
+
+Payment abstractions (e.g. custodial or x402-based flows) are treated separately from raw on-chain execution.
+
+This design guarantees deterministic behavior and auditability.
+
+---
+
+## What it does:
+
+* Calculates deterministic buy size based on confidence score
+* Builds and executes real on-chain swaps via Jupiter (config-gated)
+* Signs transactions using the configured signer (no private key exposure)
+* Enforces execution safety guards (exposure limits, kill switch)
+* Logs full execution details to CLI
+* Sends verified trade alerts (including tx hash) to Telegram
 
 ### Example CLI Output
 
@@ -572,6 +653,7 @@ npm install -g .
 SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
 OPENAI_API_KEY=
 MORALIS_API_KEY=
+JUP_API_KEY=
 
 # Agent Behavior
 XIRION_RISK_PROFILE=medium      # low | medium | high

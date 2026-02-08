@@ -103,7 +103,7 @@ export async function tradeAlphaAlert(
   const baseUrl = `https://api.telegram.org/bot${state.botToken}`;
 
   const message = `
-ALPHA TRADE EXECUTED (SIMULATION)
+ALPHA TRADE EXECUTED
 
 Agent: ${payload.agent}
 Token: ${payload.symbol}
