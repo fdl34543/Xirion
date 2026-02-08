@@ -1,3 +1,30 @@
+<p align="center">
+  <img src="../../assets/xirion-logo.png" alt="Xirion Logo" width="260">
+</p>
+
+<p align="center">
+  <strong>Xirion — Autonomous Crypto Intelligence & Execution Agent</strong>
+  <br>
+  <sub>On-chain + Community Intelligence for Solana</sub>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/version-0.1.0-blue" />
+  <img src="https://img.shields.io/badge/node-%3E%3D18-brightgreen" />
+  <img src="https://img.shields.io/badge/solana-mainnet%20%7C%20devnet-purple" />
+  <img src="https://img.shields.io/badge/license-MIT-yellow" />
+</p>
+
+<p align="center">
+  <a href="#quick-start">Quick Start</a> •
+  <a href="#features">Features</a> •
+  <a href="#cli">CLI</a> •
+  <a href="#telegram-bot">Telegram Bot</a> •
+  <a href="#architecture">Architecture</a>
+</p>
+
+---
+
 # Xirion API Documentation
 
 Xirion API is a lightweight internal API designed to support AI-driven token analysis, alpha detection, and on-chain risk evaluation.  
@@ -6,7 +33,7 @@ This API is primarily consumed by internal agents and CLI tools.
 Base URL (local):
 ```
 
-[http://127.0.0.1:3001/api](http://127.0.0.1:3001/api)
+[https://xirion.onrender.com/api](https://xirion.onrender.com/api)
 
 ````
 
@@ -180,7 +207,7 @@ npx tsx src/api/index.ts
 Expected output:
 
 ```
-API running on http://127.0.0.1:3001
+API running on https://xirion.onrender.com/api
 ```
 
 ---

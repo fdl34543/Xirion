@@ -152,6 +152,43 @@ using a single unified intelligence core.
 
 ---
 
+## API
+
+Xirion exposes an internal HTTP API used by the CLI agent, Telegram bot, and other automation tools.
+
+### Base URL (Production)
+
+[https://xirion.onrender.com/api](https://xirion.onrender.com/api)
+
+### Health Check
+
+GET /heartbeat
+
+Example:
+```bash
+curl https://xirion.onrender.com/api/heartbeat
+```
+
+
+### Available Endpoints
+
+| Method | Endpoint        | Description                       |
+| ------ | --------------- | --------------------------------- |
+| GET    | `/heartbeat`    | Service health check              |
+| POST   | `/alpha`        | AI-based alpha detection          |
+| POST   | `/analyzeToken` | Deep token risk & market analysis |
+
+### API Documentation
+
+Full API reference, request/response examples, and environment requirements are available here:
+
+👉 **[API Documentation →](src/api/README.md)**
+
+> Note: The API is designed for internal and agent-based usage.
+> Authentication is currently disabled and may be added in future versions.
+
+---
+
 ## Features
 
 ### Intelligence Core
