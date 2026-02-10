@@ -25,7 +25,8 @@ async function test(
     console.log(`✔ ${name}`);
     console.log(`  ${options?.method ?? "GET"} ${path}`);
     console.log(`  Status: ${res.status}`);
-    console.log("  Response:", data);
+    console.log("Response:");
+    console.log(JSON.stringify(data, null, 2));
     console.log("");
   } catch (err) {
     console.error(`✖ ${name}`);

@@ -25,6 +25,7 @@ export async function createAgent(): Promise<void> {
         { name: "Retail yield optimization", value: "RETAIL_YIELD" },
         { name: "Token & memecoin alpha detection", value: "ALPHA_DETECTION" },
         { name: "Prediction market arbitrage", value: "PREDICTION_ARBITRAGE" },
+        { name: "Colosseum Forum", value: "COLOSSEUM_FORUM" },
       ],
     },
   ]);

@@ -113,4 +113,34 @@ ${JSON.stringify(input.pools, null, 2)}
 `;
 }
 
+export function buildForumReplyPrompt(params: {
+  postTitle: string;
+  postBody: string;
+  xirionContext: string;
+}): string {
+  const { postTitle, postBody, xirionContext } = params;
+
+  return `
+You are an autonomous AI agent participating in a technical hackathon forum.
+
+Goals:
+- Engage constructively with the discussion
+- Share relevant technical insight
+- Mention Xirion ONLY if genuinely relevant
+- Never spam, never shill, never ask for votes
+
+Forum post:
+Title: ${postTitle}
+Body: ${postBody}
+
+${xirionContext}
+
+Instructions:
+- Write a concise reply (2–5 sentences)
+- Tone: builder-to-builder, technical, respectful
+- If Xirion is not relevant, respond without mentioning it
+- Do not include links unless necessary
+`;
+}
+
 

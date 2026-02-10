@@ -8,6 +8,8 @@ import path from "path";
    ========================= */
 
 const STORAGE_DIR = "src/storage";
+const API_BASE_URL = "https://agents.colosseum.com";
+const PROJECT_API = `${API_BASE_URL}/api/my-project`;
 
 const STATE_FILE = path.join(STORAGE_DIR, "colosseum.state.json");
 const RESPONSE_FILE = path.join(STORAGE_DIR, "colosseum.responses.json");
@@ -20,6 +22,7 @@ const LOG_FILE = path.join(STORAGE_DIR, "colosseum.logs.json");
 type RegistAction =
   | "registerAgent"
   | "createProject"
+  | "update_project"
   | "submitProject"
   | "showInfo"
   | "back";
@@ -95,6 +98,10 @@ export async function registMenu(): Promise<void> {
       choices: [
         { name: "Register agent", value: "registerAgent" },
         { name: "Create project (draft)", value: "createProject" },
+        {
+          name: "Update Project",
+          value: "update_project",
+        },
         { name: "Submit project", value: "submitProject" },
         { name: "Show registration info", value: "showInfo" },
         { name: "Back", value: "back" },
@@ -105,6 +112,9 @@ export async function registMenu(): Promise<void> {
   switch (answer.action) {
     case "registerAgent":
       await registerAgent();
+      break;
+    case "update_project":
+      await updateProject();
       break;
     case "createProject":
       await createProject();
@@ -142,7 +152,7 @@ async function registerAgent() {
       type: "input",
       name: "name",
       message: "Agent name:",
-      default: "Xerion",
+      default: "Xirion",
     },
     {
       type: "confirm",
@@ -281,6 +291,95 @@ async function createProject() {
     console.log("Project creation failed.");
   }
 }
+
+async function updateProject() {
+  const state = loadJson<ColosseumState>(STATE_FILE, {});
+
+  if (!state.agent) {
+    console.log("Agent is not registered.");
+    return;
+  }
+
+  if (!state.project) {
+    console.log("No project found. Create a project first.");
+    return;
+  }
+
+  const input = await inquirer.prompt<{
+    description: string;
+    solanaIntegration: string;
+    technicalDemoLink: string;
+    presentationLink: string;
+    confirm: boolean;
+  }>([
+    {
+      type: "editor",
+      name: "description",
+      message: "Project description (editor will open):",
+    },
+    {
+      type: "input",
+      name: "solanaIntegration",
+      message: "Solana integration description:",
+    },
+    {
+      type: "input",
+      name: "technicalDemoLink",
+      message: "Technical demo link (optional):",
+    },
+    {
+      type: "input",
+      name: "presentationLink",
+      message: "Presentation link (optional):",
+    },
+    {
+      type: "confirm",
+      name: "confirm",
+      message: "Update project information?",
+    },
+  ]);
+
+  if (!input.confirm) return;
+
+  const description = input.description.trim().replace(/\r\n/g, "\n");
+
+  try {
+    const response = await axios.put(
+      "https://agents.colosseum.com/api/my-project",
+      {
+        description,
+        solanaIntegration: input.solanaIntegration,
+        technicalDemoLink: input.technicalDemoLink,
+        presentationLink: input.presentationLink,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${state.agent.apiKey}`,
+        },
+      }
+    );
+
+    saveResponse("updateProject", response.data);
+
+    appendLog({
+      action: "updateProject",
+      status: "success",
+      timestamp: new Date().toISOString(),
+    });
+
+    console.log("Project updated successfully.");
+  } catch (error) {
+    appendLog({
+      action: "updateProject",
+      status: "failed",
+      timestamp: new Date().toISOString(),
+      message: String(error),
+    });
+
+    console.log("Project update failed.");
+  }
+}
+
 
 /* =========================
    3. Submit Project

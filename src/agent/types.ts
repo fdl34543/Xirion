@@ -2,13 +2,15 @@ export type AgentSkill =
   | "DAO_TREASURY"
   | "RETAIL_YIELD"
   | "ALPHA_DETECTION"
-  | "PREDICTION_ARBITRAGE";
+  | "PREDICTION_ARBITRAGE"
+  | "COLOSSEUM_FORUM";
 
 export const SkillRoleMap: Record<AgentSkill, string> = {
   DAO_TREASURY: "dao",
   RETAIL_YIELD: "yield",
   ALPHA_DETECTION: "alpha",
   PREDICTION_ARBITRAGE: "prediction",
+  COLOSSEUM_FORUM: "forum",
 };
 
 export interface AgentConfig {

@@ -51,7 +51,7 @@ No parameters required.
   "service": "xirion-api",
   "timestamp": 1770573663126
 }
-````
+```
 
 #### Notes
 
@@ -128,7 +128,7 @@ Body:
 }
 ```
 
-* `address` (string, required): Solana token mint address
+* `tokenAddress` (string, required): Solana token mint address
 
 #### Response
 

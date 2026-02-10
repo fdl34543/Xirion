@@ -11,6 +11,9 @@ import { restartAgent } from "./restartAgent.js";
 import { showAgentStatus } from "./agentStatus.js";
 import { restartCrashedAgents } from "./restartCrashedAgents.js";
 import { startSupervisor } from "./startSupervisor.js";
+import { runForumAgent } from "../colosseum/forumAgent.js";
+import { stopForumAgent } from "../colosseum/stopForumAgent.js";
+import { spawn } from "child_process";
 
 function getAgentList(): string[] {
   const dir = path.join(process.cwd(), "src", "agent", "user");
@@ -32,6 +35,14 @@ export async function mainMenu(): Promise<void> {
           name: "Start Agent",
           value: "start",
         },
+        // {
+        //   name: "Start Forum Agent (Colosseum)",
+        //   value: "start_forum",
+        // },
+        // {
+        //   name: "Stop Forum Agent",
+        //   value: "stop_forum",
+        // },
         { name: "Create Agent", value: "create-agent" },
         { name: "Stop Agent", value: "stop" },
         { name: "Restart Agent", value: "restart" },
@@ -68,6 +79,14 @@ export async function mainMenu(): Promise<void> {
       startAgents();
       // startSupervisor();
       break;
+
+    // case "start_forum":
+    //   await runForumAgent();
+    //   break;
+
+    // case "stop_forum":
+    //   stopForumAgent();
+    //   break;
 
     case "create-agent":
       await createAgent();
